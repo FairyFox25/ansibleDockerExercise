@@ -17,9 +17,10 @@
       mode: 0755
   - name: Copy file 
     copy: 
-      src: env.list
+      src: templates/env.list
       dest: variables/env.list
       owner: ec2-user
       mode: 0644
   - name: Start mysql
-    command: sudo docker run -tdi --name mysql -p 3306:3306 --env-file ./variables/env.list  mysql:5.7
+    command: sudo docker run -d --name mysql -p 3306:3306 --env-file ./variables/env.list  mysql/mysql-server:5.7
+                  #docker run --name my-container-name -e MYSQL_ROOT_PASSWORD=my-secret-pw -d mysql/mysql-server:tag

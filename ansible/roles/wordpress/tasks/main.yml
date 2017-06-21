@@ -2,10 +2,16 @@
   get_url: 
     url: https://wordpress.org/latest.tar.gz
     dest: /wordpress.tar.gz
-    
+
 - name: Unpack the wordpress
-  command: mkdir /var/www/html/wordpress
+  # file:
+  #     path: /var/www/html
+  #     state: directory
   unarchive: 
     src: /wordpress.tar.gz
-    dest: /var/www/html/wordpress
+    dest: /var/www/html
     remote_src: True
+# - name: remove old config file 
+
+# - name: copy new config file 
+  

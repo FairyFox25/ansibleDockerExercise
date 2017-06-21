@@ -12,8 +12,9 @@
   become: true 
   gather_facts: true
   roles: 
-    #- apache
+    # - apache
      - docker
+    #- wordpress
 
 #- hosts: 52.15.240.5 #ec2hosts
 #  name: Configure Ec2
