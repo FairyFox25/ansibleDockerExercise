@@ -1,0 +1,8 @@
+  - name: update Packages
+    command: sudo yum update -y
+  - name: install docker
+    command: sudo yum install -y docker
+  - name: start docker service
+    command: sudo service docker start 
+  - name: Add user to the docker group 
+    command: sudo usermod -a -G docker ec2-user
