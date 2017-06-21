@@ -1,20 +1,20 @@
 ---
-- hosts: 127.0.0.1
-  connection: local
-  gather_facts: False
-  remote_user: ec2-user
-  roles: 
-    - ec2
+# - hosts: 127.0.0.1
+#   connection: local
+#   gather_facts: False
+#   remote_user: ec2-user
+#   roles: 
+#     - ec2
 
 - hosts: webservers
   name: configuration play
   user: ec2-user
+  become: true 
   gather_facts: true
+  roles: 
+    #- apache
+     - docker
 
-  tasks:
-
-     - name: Check NTP service
-       service: name=ntpd state=started
 #- hosts: 52.15.240.5 #ec2hosts
 #  name: Configure Ec2
 #  user: ec2-user

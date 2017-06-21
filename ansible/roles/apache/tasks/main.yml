@@ -1,0 +1,33 @@
+
+  #command: sudo yum update -y
+- name: install Apache
+  yum: name={{item}} state=installed update_cache=yes
+  with_items:
+      - httpd24
+      - php70 
+
+- name: start apache 
+  service: 
+    name: httpd
+    state: started
+    runlevel: 2345
+
+- name: set permissions 
+  file: 
+    path: /var/www
+    owner: ec2-user
+    group: ec2-user
+    mode: 2775
+
+- name: change permissions
+  command: find /var/www -type d -exec sudo chmod 2775 {} \;
+
+- name: change rest of permissions
+  command: find /var/www -type f -exec sudo chmod 0664 {} \;
+
+- name: restart apache 
+  service: 
+    name: httpd
+    state: restarted
+- name: set run levels
+  command: chkconfig --level 2345 httpd on

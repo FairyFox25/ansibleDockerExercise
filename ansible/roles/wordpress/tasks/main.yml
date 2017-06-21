@@ -1,0 +1,11 @@
+- name: install and configure wordpress
+  get_url: 
+    url: https://wordpress.org/latest.tar.gz
+    dest: /wordpress.tar.gz
+    
+- name: Unpack the wordpress
+  command: mkdir /var/www/html/wordpress
+  unarchive: 
+    src: /wordpress.tar.gz
+    dest: /var/www/html/wordpress
+    remote_src: True
