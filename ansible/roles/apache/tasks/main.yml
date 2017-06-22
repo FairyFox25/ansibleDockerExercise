@@ -5,6 +5,7 @@
   with_items:
       - httpd24
       - php70 
+      - php70-mysqlnd
 
 - name: start apache 
   service: 

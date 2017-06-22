@@ -1,20 +1,24 @@
 ---
-# - hosts: 127.0.0.1
-#   connection: local
-#   gather_facts: False
-#   remote_user: ec2-user
-#   roles: 
-#     - ec2
+- hosts: 127.0.0.1
+  connection: local
+  gather_facts: False
+  remote_user: ec2-user
+  roles: 
+    - ec2
 
 - hosts: webservers
   name: configuration play
   user: ec2-user
   become: true 
   gather_facts: true
+    vars: 
+    wp_home_var: 'http://ec2-13-58-177-146.us-east-2.compute.amazonaws.com/wordpress'
+    wp_stireurl_var: 'http://ec2-13-58-177-146.us-east-2.compute.amazonaws.com/wordpress'
+
   roles: 
-    # - apache
-     - docker
-    #- wordpress
+    - apache
+    - docker
+    - wordpress
 
 #- hosts: 52.15.240.5 #ec2hosts
 #  name: Configure Ec2

@@ -13,5 +13,25 @@
     remote_src: True
 # - name: remove old config file 
 
-# - name: copy new config file 
-  
+- name: copy new config file 
+  template: 
+    src: templates/wp-config.j2
+    dest: /var/www/html/wordpress/wp-config.php
+    mode: 0777
+
+- name: download wp-cli
+  command: curl -O https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar
+
+- name: Make executable
+  file: 
+    path: wp-cli.phar
+    mode: 0777
+
+- name: Move the phar file to bin to make wp shortcut
+  copy:  
+    remote_src: True
+    src: /home/ec2-user/wp-cli.phar
+    dest: /usr/local/bin/wp
+
+- name: finish install with wp-cli
+  command: php wp-cli.phar core install --url="{{ wp_stireurl_var }}"  --path="/var/www/html/wordpress" --title="Weather Blog" --admin_user="lhorn" --admin_password="wordpress" --admin_email="lhorn@cleo.com" --allow-root
