@@ -1,37 +1,61 @@
-- name: install and configure wordpress
+- name: download wordpress
   get_url: 
     url: https://wordpress.org/latest.tar.gz
     dest: /wordpress.tar.gz
 
-- name: Unpack the wordpress
-  # file:
-  #     path: /var/www/html
-  #     state: directory
+- name: Unpack wordpress
   unarchive: 
     src: /wordpress.tar.gz
     dest: /var/www/html
     remote_src: True
-# - name: remove old config file 
 
-- name: copy new config file 
+- name: copy new wordpress config 
   template: 
     src: templates/wp-config.j2
     dest: /var/www/html/wordpress/wp-config.php
     mode: 0777
 
-- name: download wp-cli
+- name: download wp-cli to control via command line 
   command: curl -O https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar
 
-- name: Make executable
-  file: 
-    path: wp-cli.phar
-    mode: 0777
-
-- name: Move the phar file to bin to make wp shortcut
+- name: Move the phar file to bin to make wp shortcut for wp-cli
   copy:  
     remote_src: True
     src: /home/ec2-user/wp-cli.phar
     dest: /usr/local/bin/wp
+    mode: 0777
 
 - name: finish install with wp-cli
-  command: php wp-cli.phar core install --url="{{ wp_stireurl_var }}"  --path="/var/www/html/wordpress" --title="Weather Blog" --admin_user="lhorn" --admin_password="wordpress" --admin_email="lhorn@cleo.com" --allow-root
+  command: php wp-cli.phar core install  --url="{{ wp_stireurl_var }}" --title="Weather Blog" --admin_user="lhorn" --admin_password="wordpress" --admin_email="someone@something.com" --allow-root --path="/var/www/html/wordpress"
+
+- name: Make api call to metaWeather
+  uri: 
+    url: https://www.metaweather.com/api/location/2379574/
+    method: GET
+    return_content: yes
+  register: jsonWeather
+
+# Set varaibles for the weather attributes to use in the template for the post
+- set_fact: temp="{{ jsonWeather.json.consolidated_weather[0].the_temp }}"
+- set_fact: wstate="{{ jsonWeather.json.consolidated_weather[0].weather_state_name }}"
+- set_fact: wabbr="{{ jsonWeather.json.consolidated_weather[0].weather_state_abbr }}"
+- set_fact: date="{{ jsonWeather.json.consolidated_weather[0].applicable_date }}"
+
+
+- name: Fill in the template for the post 
+  template:
+    src: templates/weather.j2
+    dest: ./weather.txt
+    mode: 777
+
+- name: Make post about weather 
+  command: php wp-cli.phar post create ./weather.txt --path="/var/www/html/wordpress" --post_status=publish --post_title="Pic is in text file" --allow-root
+
+
+
+
+
+
+
+
+

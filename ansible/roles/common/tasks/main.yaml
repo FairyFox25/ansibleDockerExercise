@@ -1,9 +1,50 @@
--   name: Make sure user is on server and generate ssh key for it
-    user: name={{ app_code_user }}
-        generate_ssh_key=yes
+- name: Get JSON from the Interwebs                                                                          
+  uri: 
+    url: "https://raw.githubusercontent.com/ljharb/node-json-file/master/package.json" 
+    return_content: yes  
+  register: json_response 
 
--   name: Add public keys for developers
-    authorized_key: user={{ app_code_user }}
-                    key="{{ lookup('file', item) }}"
-    with_fileglob:
-        - ../public_keys/*.pub
+# - debug: 
+#     msg: "{{ json_response }}"
+
+- name: Make api call to metaWeather
+  uri: 
+    url: https://www.metaweather.com/api/location/2379574/
+    method: GET
+    return_content: yes
+  register: jsonWeather
+- debug: 
+    msg: "{{ jsonWeather.json.consolidated_weather[0].the_temp }}"
+
+    # msg: "{{ (jsonWeather.content|from_json) ['consolidated_weather'] ['0'] }}"
+# - debug: 
+#     msg: "{{ jsonWeather.json }}"
+
+# - name: Convert with out content 
+#   set_fact: weather={{ jsonWeather.json | from_json }} 
+
+# - name: find weather 
+#   debug: 
+#     msg: "{{ weather }}"
+
+# - name: Convert with out content 2
+#   set_fact: weather2= (jsonWeather.json | from_json)
+
+# - name: find weather2
+#   debug: 
+#     msg: "{{ weather2 ['location_type'] }}"
+
+# - name: find weather3
+#   set_fact: weather3= (jsonWeather.json.content | from_json )
+# - debug: 
+#     msg: "{{ weather3 }}"
+
+
+
+# - debug: 
+#     msg: "{{weather}}"
+
+# - name: Convert from JSON 
+#   set_fact: weather2={{ weather | from_json }}
+# - debug: 
+#     msg: " {{ weather2.consolidated_weather }}"

@@ -1,26 +1,29 @@
 
   - name: install docker
     yum: name=docker state=installed update_cache=yes
-    #command: sudo yum install -y docker
+
   - name: start docker service
     service: 
       name: docker
       state: started
       runlevel: 2345
-    #command: sudo service docker start 
+    
   - name: Add user to the docker group 
     command: sudo usermod -a -G docker ec2-user
-  - name: Create directory
+
+  - name: Create directory for docker variables file
     file:
       path: /home/ec2-user/variables
       state: directory
       mode: 0755
-  - name: Copy file 
+
+  - name: Copy docker variables file 
     copy: 
       src: templates/env.list
       dest: variables/env.list
       owner: ec2-user
       mode: 0644
+
   - name: Start mysql
     command: sudo docker run --name mysql -p 3306:3306 --env-file ./variables/env.list -d mysql/mysql-server:5.7
-                  #docker run --name my-container-name -e MYSQL_ROOT_PASSWORD=my-secret-pw -d mysql/mysql-server:tag
+                  
