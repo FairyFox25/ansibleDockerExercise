@@ -31,9 +31,9 @@
     wait: yes
     exact_count: 1
     count_tag: 
-      Name: Wordpress
+      Name: WordpressServer
     instance_tags:
-      Name: Wordpress
+      Name: WordpressServer
     vpc_subnet_id: subnet-fd468cb0
     assign_public_ip: yes
   register: ec2 

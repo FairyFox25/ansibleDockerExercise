@@ -49,7 +49,7 @@
     mode: 777
 
 - name: Make post about weather 
-  command: php wp-cli.phar post create ./weather.txt --path="/var/www/html/wordpress" --post_status=publish --post_title="Pic is in text file" --allow-root
+  command: php wp-cli.phar post create ./weather.txt --path="/var/www/html/wordpress" --post_status=publish --post_title="Chicago Weather" --allow-root
 
 
 
