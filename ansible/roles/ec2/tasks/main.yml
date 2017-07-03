@@ -43,7 +43,7 @@
     name: ansible_security_group
     description: ansible security group
     state: present 
-    region: us-east-2
+    region: "{{ aws_region }}"
     vpc_id: "{{ NewVPC.vpc.id }}"
     rules:
         - proto: tcp
@@ -78,17 +78,17 @@
 
 - name: Create Ec2 instance 
   ec2: 
-    key_name: "WordpressServer"
+    key_name: WordpressServer
     region: "{{ aws_region }}"
-    group_id: "{{basic_firewall.group_id}}"
+    group_id: "{{ basic_firewall.group_id }}"
     instance_type: t2.micro
-    image: "{{aws_image}}"
+    image: "{{ aws_image }}"
     wait: yes
     exact_count: 1
     count_tag: 
       Name: Wordpress
     instance_tags:
-      Name: WordpressServer
+      Name: "{{ image_name }}"
     vpc_subnet_id: "{{ wordpress_subnet.subnet.id }}"
     assign_public_ip: yes
   register: ec2 

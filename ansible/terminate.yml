@@ -61,11 +61,6 @@
         state: present
       register: Subnet
 
-    - name: delete Gateway 
-      ec2_vpc_igw:
-        vpc_id: "{{ VPC.vpc.id }}"
-        state: absent
-        region: "{{ aws_region }}"
 
     - name: delete public subnet route table
       ec2_vpc_route_table:
@@ -77,6 +72,10 @@
           - "{{ Subnet.subnet.id }}"
         state: absent 
 
+    - name: Wait to remove subnet
+      pause: 
+        seconds: 60
+
     - name: remove subnet
       ec2_vpc_subnet:
         cidr: "{{ cidir_vpc }}/24"
@@ -85,6 +84,12 @@
         resource_tags:
           Name: Wordpress Subnet
         state: absent
+
+    - name: delete Gateway 
+      ec2_vpc_igw:
+        vpc_id: "{{ VPC.vpc.id }}"
+        state: absent
+        region: "{{ aws_region }}"
 
     - name: Delete security Group
       ec2_group:

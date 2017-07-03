@@ -14,7 +14,6 @@
   user: ec2-user
   become: true 
   gather_facts: true
-
   tasks: 
   - name: Gather facts 
     ec2_facts:

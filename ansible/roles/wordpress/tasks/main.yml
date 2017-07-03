@@ -13,17 +13,9 @@
   template: 
     src: templates/wp-config.j2
     dest: /var/www/html/wordpress/wp-config.php
-    mode: 0777
 
 - name: download wp-cli to control via command line 
   command: curl -O https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar
-
-- name: Move the phar file to bin to make wp shortcut for wp-cli
-  copy:  
-    remote_src: True
-    src: /home/ec2-user/wp-cli.phar
-    dest: /usr/local/bin/wp
-    mode: 0777
 
 - name: finish install with wp-cli
   command: php wp-cli.phar core install  --url="{{ wp_stireurl_var }}" --title="Weather Blog" --admin_user="lhorn" --admin_password="wordpress" --admin_email="someone@something.com" --allow-root --path="/var/www/html/wordpress"
@@ -46,7 +38,6 @@
   template:
     src: templates/weather.j2
     dest: ./weather.txt
-    mode: 777
 
 - name: Make post about weather 
   command: php wp-cli.phar post create ./weather.txt --path="/var/www/html/wordpress" --post_status=publish --post_title="Chicago Weather" --allow-root
