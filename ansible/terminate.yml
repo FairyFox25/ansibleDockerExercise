@@ -6,7 +6,7 @@
     local_action:
       module: ec2
       state: 'absent'
-      region: us-east-2
+      region: "{{ aws_region }}"
       instance_ids: "{{ ansible_ec2_instance_id }}"
 
 - name: Remove ips from hosts file  
@@ -18,3 +18,88 @@
       dest: "inventory/hosts" 
       regexp: "ansible_ssh_user=ec2-user" 
       state: absent
+
+- name: Delete Keys  
+  hosts: 127.0.0.1
+  connection: local
+  gather_facts: False
+  tasks: 
+    - name: delete keys 
+      ec2_key: 
+        name: WordpressServer
+        region: "{{ aws_region }}"
+        state: absent
+    - name: delete pem file 
+      file: 
+        path: WordpressServer.pem
+        state: absent
+
+
+- name: terminate VPC and subnet 
+  hosts: 127.0.0.1
+  connection: local
+  gather_facts: False
+  remote_user: ec2-user
+  tasks: 
+    - name: get VPC id
+      ec2_vpc_net:
+        name: WordpressVPC
+        state: present
+        cidr_block: "{{ cidir_vpc }}/16"
+        region: "{{ aws_region }}"
+        tags:
+          module: ec2_vpc_net
+      register: VPC 
+
+    - name: get subnet id
+      ec2_vpc_subnet:
+        cidr: "{{ cidir_vpc }}/24"
+        vpc_id: "{{ VPC.vpc.id }}"
+        region: "{{ aws_region }}"
+        resource_tags:
+          Name: Wordpress Subnet
+        state: present
+      register: Subnet
+
+    - name: delete Gateway 
+      ec2_vpc_igw:
+        vpc_id: "{{ VPC.vpc.id }}"
+        state: absent
+        region: "{{ aws_region }}"
+
+    - name: delete public subnet route table
+      ec2_vpc_route_table:
+        vpc_id: "{{ VPC.vpc.id }}"
+        region: "{{ aws_region }}"
+        tags:
+          Name: PublicWP
+        subnets:
+          - "{{ Subnet.subnet.id }}"
+        state: absent 
+
+    - name: remove subnet
+      ec2_vpc_subnet:
+        cidr: "{{ cidir_vpc }}/24"
+        vpc_id: "{{ VPC.vpc.id }}"
+        region: "{{ aws_region }}"
+        resource_tags:
+          Name: Wordpress Subnet
+        state: absent
+
+    - name: Delete security Group
+      ec2_group:
+        name: ansible_security_group
+        vpc_id: "{{ VPC.vpc.id }}"
+        region: "{{ aws_region }}"
+        description: ansible security group
+        state: absent
+
+    - name: remove VPC 
+      ec2_vpc_net:
+        name: WordpressVPC
+        state: absent
+        cidr_block: "{{ cidir_vpc }}/16"
+        region: "{{ aws_region }}"
+        tags:
+          module: ec2_vpc_net
+

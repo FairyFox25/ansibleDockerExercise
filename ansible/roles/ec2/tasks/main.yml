@@ -1,8 +1,50 @@
+- name: Create VPC and subnet 
+  ec2_vpc_net:
+    name: WordpressVPC
+    cidr_block: "{{ cidir_vpc }}/16"
+    state: present
+    region: "{{ aws_region }}"
+    tags:
+      module: ec2_vpc_net
+  register: NewVPC
+
+- name: Create subnet 
+  ec2_vpc_subnet:
+    state: present
+    vpc_id: "{{ NewVPC.vpc.id }}" 
+    cidr: "{{ cidir_vpc }}/24"
+    region: "{{ aws_region }}"
+    resource_tags:
+      Name: Wordpress Subnet
+  register: wordpress_subnet
+
+- name: create Gateway 
+  ec2_vpc_igw:
+    vpc_id: "{{ NewVPC.vpc.id }}"
+    state: present
+    region: "{{ aws_region }}"
+  register: igw
+
+- name: Set up public subnet route table
+  ec2_vpc_route_table:
+    vpc_id: "{{ NewVPC.vpc.id }}"
+    region: "{{ aws_region }}"
+    tags:
+      Name: PublicWP
+    subnets:
+      - "{{ wordpress_subnet.subnet.id }}"
+    routes:
+      - dest: 0.0.0.0/0
+        gateway_id: "{{ igw.gateway_id }}"
+  register: public_route_table
+
 - name: Create security group for this instance 
   ec2_group:
     name: ansible_security_group
     description: ansible security group
+    state: present 
     region: us-east-2
+    vpc_id: "{{ NewVPC.vpc.id }}"
     rules:
         - proto: tcp
           from_port: 22
@@ -24,7 +66,7 @@
 - name: Create keys 
   ec2_key: 
     name: WordpressServer
-    region: us-east-2
+    region: "{{ aws_region }}"
   register: serverKeys 
 
 - name: save Private key 
@@ -37,17 +79,17 @@
 - name: Create Ec2 instance 
   ec2: 
     key_name: "WordpressServer"
-    region: us-east-2
+    region: "{{ aws_region }}"
     group_id: "{{basic_firewall.group_id}}"
     instance_type: t2.micro
-    image: "ami-3883a55d"
+    image: "{{aws_image}}"
     wait: yes
     exact_count: 1
     count_tag: 
-      Name: Termination 1
+      Name: Wordpress
     instance_tags:
-      Name: WordpressServer T
-    vpc_subnet_id: subnet-fd468cb0
+      Name: WordpressServer
+    vpc_subnet_id: "{{ wordpress_subnet.subnet.id }}"
     assign_public_ip: yes
   register: ec2 
 

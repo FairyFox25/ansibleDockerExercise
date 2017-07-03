@@ -1,36 +1,36 @@
 ---
 #First set up the Amazon EC2 instance using the ec2 role 
-- hosts: 127.0.0.1
-  connection: local
-  gather_facts: False
-  remote_user: ec2-user
-  roles: 
-    - ec2
-
-# # Next, figure out the url for the wordpress site.
-# # If the user did not specify a url, use the public DNS of the ec2 instance instead. 
-# - hosts: webservers
-#   name: configuration play
-#   user: ec2-user
-#   become: true 
-#   gather_facts: true
-
-#   tasks: 
-#   - name: Gather facts 
-#     ec2_facts:
-      
-#   - set_fact: wp_stireurl_var='http://{{ ansible_ec2_public_hostname }}/wordpress'
-#     when: wp_stireurl_var is not defined
-
-
-# # Next, configure apache, docker, and wordpress on the remote host just made 
-# - hosts: webservers
-#   name: configuration play
-#   user: ec2-user
-#   become: true 
-#   gather_facts: true
+# - hosts: 127.0.0.1
+#   connection: local
+#   gather_facts: False
+#   remote_user: ec2-user
 #   roles: 
-#     - apache
-#     - docker
-    # - wordpress
+#     - ec2
+
+# Next, figure out the url for the wordpress site.
+# If the user did not specify a url, use the public DNS of the ec2 instance instead. 
+- hosts: webservers
+  name: configuration play
+  user: ec2-user
+  become: true 
+  gather_facts: true
+
+  tasks: 
+  - name: Gather facts 
+    ec2_facts:
+      
+  - set_fact: wp_stireurl_var='http://{{ ansible_ec2_public_hostname }}/wordpress'
+    when: wp_stireurl_var is not defined
+
+
+# Next, configure apache, docker, and wordpress on the remote host just made 
+- hosts: webservers
+  name: configuration play
+  user: ec2-user
+  become: true 
+  gather_facts: true
+  roles: 
+    - apache
+    - docker
+    - wordpress
                                                                                                                                       

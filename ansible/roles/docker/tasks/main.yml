@@ -1,6 +1,14 @@
 
   - name: install docker
-    yum: name=docker state=installed update_cache=yes
+    yum: name={{item}} state=installed update_cache=yes
+    with_items: 
+      - python
+      - python-virtualenv 
+      - python-pip
+      - docker
+
+  - name: install docker-py
+    pip: name=docker-py state=present
 
   - name: start docker service
     service: 
@@ -24,6 +32,9 @@
       owner: ec2-user
       mode: 0644
 
-  - name: Start mysql
-    command: sudo docker run --name mysql -p 3306:3306 --env-file ./variables/env.list -d mysql/mysql-server:5.7
-                  
+  - name: Create a mysql container
+    docker_container:
+      name: mysql
+      image: mysql/mysql-server:5.7
+      published_ports: 3306:3306
+      env_file: ./variables/env.list

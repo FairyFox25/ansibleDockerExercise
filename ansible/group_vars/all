@@ -1,0 +1,4 @@
+---
+cidir_vpc: 172.40.0.0
+aws_region: us-east-2
+aws_image: ami-3883a55d
