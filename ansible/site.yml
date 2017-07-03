@@ -1,11 +1,11 @@
 ---
 #First set up the Amazon EC2 instance using the ec2 role 
-# - hosts: 127.0.0.1
-#   connection: local
-#   gather_facts: False
-#   remote_user: ec2-user
-#   roles: 
-#     - ec2
+- hosts: 127.0.0.1
+  connection: local
+  gather_facts: False
+  remote_user: ec2-user
+  roles: 
+    - ec2
 
 # Next, figure out the url for the wordpress site.
 # If the user did not specify a url, use the public DNS of the ec2 instance instead. 
