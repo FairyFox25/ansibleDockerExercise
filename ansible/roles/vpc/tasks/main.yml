@@ -1,0 +1,49 @@
+- name: Create VPC
+  ec2_vpc_net:
+    name: WordpressVPC
+    cidr_block: "{{ cidir_vpc }}/16"
+    state: present
+    region: "{{ aws_region }}"
+    tags:
+      module: ec2_vpc_net
+  register: NewVPC
+  when: aws_vpc_id is not defined
+
+- set_fact: aws_vpc_id='{{ NewVPC.vpc.id }}'
+  when: NewVPC is defined
+
+
+- name: Create subnet 
+  ec2_vpc_subnet:
+    state: present
+    vpc_id: "{{ NewVPC.vpc.id }}" 
+    cidr: "{{ cidir_vpc }}/24"
+    region: "{{ aws_region }}"
+    resource_tags:
+      Name: Wordpress Subnet
+  register: wordpress_subnet
+  when: aws_subnet_id is not defined
+
+- set_fact: aws_subnet_id='{{ wordpress_subnet.subnet.id }}'
+  when: wordpress_subnet is defined
+
+- name: create Gateway 
+  ec2_vpc_igw:
+    vpc_id: "{{ NewVPC.vpc.id }}"
+    state: present
+    region: "{{ aws_region }}"
+  register: igw
+  when: wordpress_subnet is defined
+
+- name: Set up public subnet route table
+  ec2_vpc_route_table:
+    vpc_id: "{{ NewVPC.vpc.id }}"
+    region: "{{ aws_region }}"
+    tags:
+      Name: PublicWP
+    subnets:
+      - "{{ wordpress_subnet.subnet.id }}"
+    routes:
+      - dest: 0.0.0.0/0
+        gateway_id: "{{ igw.gateway_id }}"
+  when: wordpress_subnet is defined

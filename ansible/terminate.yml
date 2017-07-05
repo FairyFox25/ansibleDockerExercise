@@ -26,12 +26,12 @@
   tasks: 
     - name: delete keys 
       ec2_key: 
-        name: WordpressServer
+        name: "{{image_name}}"
         region: "{{ aws_region }}"
         state: absent
     - name: delete pem file 
       file: 
-        path: WordpressServer.pem
+        path: "{{image_name}}.pem"
         state: absent
 
 

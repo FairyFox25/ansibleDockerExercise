@@ -17,7 +17,7 @@
       runlevel: 2345
     
   - name: Add user to the docker group 
-    command: sudo usermod -a -G docker ec2-user
+    command: usermod -a -G docker ec2-user
 
   - name: Create directory for docker variables file
     file:

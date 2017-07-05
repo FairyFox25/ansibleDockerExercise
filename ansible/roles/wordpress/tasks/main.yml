@@ -15,7 +15,9 @@
     dest: /var/www/html/wordpress/wp-config.php
 
 - name: download wp-cli to control via command line 
-  command: curl -O https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar
+  get_url:
+    url: https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar
+    dest: ./wp-cli.phar
 
 - name: finish install with wp-cli
   command: php wp-cli.phar core install  --url="{{ wp_stireurl_var }}" --title="Weather Blog" --admin_user="lhorn" --admin_password="wordpress" --admin_email="someone@something.com" --allow-root --path="/var/www/html/wordpress"

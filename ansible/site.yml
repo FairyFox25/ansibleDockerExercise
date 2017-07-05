@@ -5,6 +5,7 @@
   gather_facts: False
   remote_user: ec2-user
   roles: 
+    - vpc
     - ec2
 
 # Next, figure out the url for the wordpress site.
